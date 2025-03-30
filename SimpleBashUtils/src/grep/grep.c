@@ -8,26 +8,10 @@
 #include <string.h>
 #include <unistd.h>
 
-// void printGrep(int match, char *buffer, Opts opts, int *cntMatch, int cntStr)
-// {
-//   if (match >= 0 && !opts.invertMatch) {
-//     (*cntMatch)++;
-//     if (!opts.countMatch && !opts.lineNumber)
-//       printf("%s", buffer);
-//     else if (!opts.countMatch && opts.lineNumber)
-//       printf("%d:%s", cntStr, buffer);
-//   } else if (match < 0 && opts.invertMatch) {
-//     (*cntMatch)++;
-//     if (!opts.countMatch && !opts.lineNumber)
-//       printf("%s", buffer);
-//     else if (!opts.countMatch && opts.lineNumber)
-//       printf("%d:%s", cntStr, buffer);
-//   }
-// }
 void printGrep(int match, char *buffer, Opts opts, int *cntMatch, int cntStr) {
   if ((match >= 0 && !opts.invertMatch) || (match < 0 && opts.invertMatch)) {
     (*cntMatch)++;
-    if (!opts.countMatch) {
+    if (!opts.countMatch && !opts.filesMatch) {
       if (opts.lineNumber) {
         printf("%d:%s", cntStr, buffer);
       } else {
@@ -39,10 +23,10 @@ void printGrep(int match, char *buffer, Opts opts, int *cntMatch, int cntStr) {
 
 ErrTypes makeOutput(int argc, char **argv, char *reg, Opts opts) {
   ErrTypes err = OK;
-
   int erroffset;
   const char *error;
-  pcre *resReg = pcre_compile(reg, 0, &error, &erroffset, NULL);
+  int prce_op = opts.ignoreCase ? PCRE_CASELESS : 0;
+  pcre *resReg = pcre_compile(reg, prce_op, &error, &erroffset, NULL);
   if (!resReg) {
     printf("Error: %s\nIndex error: %d\n", error, erroffset);
     return INVALID_REG;
@@ -60,6 +44,11 @@ ErrTypes makeOutput(int argc, char **argv, char *reg, Opts opts) {
     while ((nread = getline(&buffer, &len, file)) != -1) {
       int ovector[30];
       int match = pcre_exec(resReg, NULL, buffer, len, 0, 0, ovector, 30);
+      if (opts.filesMatch && cntMatch > 0) {
+        printf("%s", argv[opts.endIndex + i]);
+        break;
+      }
+
       cntStr++;
       printGrep(match, buffer, opts, &cntMatch, cntStr);
     }
