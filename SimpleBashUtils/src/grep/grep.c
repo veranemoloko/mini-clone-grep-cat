@@ -9,7 +9,8 @@
 #include <unistd.h>
 
 void printGrep(int match, char *buffer, Opts opts, int *cntMatch, int cntStr) {
-  if ((match >= 0 && !opts.invertMatch) || (match < 0 && opts.invertMatch)) {
+  bool hasMatch = (match >= 0);
+  if ((hasMatch && !opts.invertMatch) || (!hasMatch && opts.invertMatch)) {
     (*cntMatch)++;
     if (!opts.countMatch && !opts.filesMatch) {
       if (opts.lineNumber) {
@@ -48,16 +49,16 @@ ErrTypes makeOutput(int argc, char **argv, char *reg, Opts opts) {
         printf("%s", argv[opts.endIndex + i]);
         break;
       }
-
       cntStr++;
       printGrep(match, buffer, opts, &cntMatch, cntStr);
     }
 
     if (opts.countMatch)
-      printf("%d", cntMatch);
+      printf("%d\n", cntMatch);
 
     free(buffer);
     fclose(file);
   }
+  free(resReg);
   return err;
 }

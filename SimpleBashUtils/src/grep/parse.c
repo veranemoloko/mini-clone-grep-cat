@@ -16,12 +16,12 @@ ErrTypes parseOptions(int argc, char **argv, Opts *op, char **reg) {
       {"ignore-case", no_argument, NULL, 'i'},
       {"invert-match", no_argument, NULL, 'v'},
       {"count", no_argument, NULL, 'c'},
-      {"files-with-matches", required_argument, NULL, 'l'},
+      {"files-with-matches", no_argument, NULL, 'l'},
       {"line-number", no_argument, NULL, 'n'},
       {0, 0, 0, 0}};
 
   int res;
-  while ((res = getopt_long(argc, argv, "e:ivcl:n", longOpts, NULL)) != -1) {
+  while ((res = getopt_long(argc, argv, "e:ivcln", longOpts, NULL)) != -1) {
     switch (res) {
     case 'e':
       op->pattern = true;
@@ -38,7 +38,6 @@ ErrTypes parseOptions(int argc, char **argv, Opts *op, char **reg) {
       break;
     case 'l':
       op->filesMatch = true;
-      (*reg) = optarg;
       break;
     case 'n':
       op->lineNumber = true;
@@ -51,7 +50,11 @@ ErrTypes parseOptions(int argc, char **argv, Opts *op, char **reg) {
   if (argc <= optind)
     err = INVALID_FILE;
 
-  op->endIndex = optind;
+  op->endIndex = op->pattern ? optind : optind + 1;
+  *reg = op->pattern ? *reg : argv[optind];
+
+  printf("%s\n", argv[op->endIndex]);
+  printf("%s\n", *reg);
 
   return err;
 }
