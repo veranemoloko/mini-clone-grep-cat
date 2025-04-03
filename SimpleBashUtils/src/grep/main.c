@@ -5,10 +5,11 @@
 #include "grep.h"
 #include "options.h"
 #include "parse.h"
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
   Opts configs = newConfigs();
-  char *reg;
+  char *reg = NULL;
 
   ErrTypes err = OK;
   bool isErr = (err = parseOptions(argc, argv, &configs, &reg)) ||

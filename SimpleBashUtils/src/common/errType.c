@@ -11,6 +11,7 @@ void printErr(ErrTypes errEnum) {
     printf("Error: The options is invalid.\n");
     break;
   case INVALID_REG:
+  case MEM_ERR:
     break;
   case OK:
     break;

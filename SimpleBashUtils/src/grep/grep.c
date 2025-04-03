@@ -33,26 +33,31 @@ ErrTypes makeOutput(int argc, char **argv, char *reg, Opts opts) {
     return INVALID_REG;
   }
 
-  int cntMatch = 0, cntStr = 0;
-  for (int i = 0; i < argc - opts.endIndex; i++) {
+  int cntMatch = 0, cntStr = 0, cntFiles = argc - opts.endIndex;
+  for (int i = 0; i < cntFiles; i++) {
     FILE *file = fopen(argv[opts.endIndex + i], "r");
     if (file == NULL)
       return INVALID_FILE;
-
     char *buffer = NULL;
     size_t len = 0;
     ssize_t nread;
     while ((nread = getline(&buffer, &len, file)) != -1) {
       int ovector[30];
       int match = pcre_exec(resReg, NULL, buffer, len, 0, 0, ovector, 30);
-      if (opts.filesMatch && cntMatch > 0) {
-        printf("%s", argv[opts.endIndex + i]);
+      if (opts.filesMatch && match > 0) {
+        printf("%s\n", argv[opts.endIndex + i]);
         break;
       }
       cntStr++;
+      if (match > 0 && cntFiles > 1 && !opts.filesMatch && !opts.countMatch) {
+        printf("%s:", argv[opts.endIndex + i]);
+      }
       printGrep(match, buffer, opts, &cntMatch, cntStr);
     }
 
+    if (cntFiles > 1) {
+      printf("%s:", argv[opts.endIndex + i]);
+    }
     if (opts.countMatch)
       printf("%d\n", cntMatch);
 
