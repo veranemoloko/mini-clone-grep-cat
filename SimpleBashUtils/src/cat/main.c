@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 
   Opts configs = newConfigs();
 
-  ErrTypes err = OK;
+  Result err = OK;
   bool isErr = (err = parseOptions(argc, argv, &configs)) ||
                (err = makeOutput(argc, argv, configs));
 

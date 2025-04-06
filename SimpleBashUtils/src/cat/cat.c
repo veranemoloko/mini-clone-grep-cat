@@ -21,8 +21,8 @@ void showTab(char *buffer, bool status) {
   }
 }
 
-ErrTypes makeOutput(const int argc, char **argv, const Opts opts) {
-  ErrTypes err = OK;
+Result makeOutput(const int argc, char **argv, const Opts opts) {
+  Result err = OK;
   int strCnt = 1;
   int emptyStrCnt = 0;
 

@@ -3,7 +3,9 @@
 
 #include "../common/errType.h"
 #include "options.h"
+#include <pcre.h>
 
-ErrTypes makeOutput(int, char **, char *, Opts);
+Result regComlile(char *, pcre **, bool);
+Result makeOutput(int, char **, Opts, pcre *);
 
 #endif

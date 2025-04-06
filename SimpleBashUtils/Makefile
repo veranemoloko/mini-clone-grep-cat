@@ -48,7 +48,7 @@ cppcheck:
 .PHONY: leakscheck/cat
 leakscheck/cat:
 	valgrind --tool=memcheck --leak-check=yes $(TARGET_CAT)
-	
+
 .PHONY: leakscheck/grep
 leakscheck/grep:
 	valgrind --tool=memcheck --leak-check=yes $(TARGET_GREP)

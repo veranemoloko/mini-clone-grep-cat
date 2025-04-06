@@ -7,8 +7,9 @@ typedef enum {
   INVALID_FILE,
   INVALID_OPTIONS,
   INVALID_REG,
-} ErrTypes;
+  USAGE
+} Result;
 
-void printErr(ErrTypes);
+void printErr(Result);
 
 #endif

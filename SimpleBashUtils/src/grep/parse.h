@@ -4,6 +4,6 @@
 #include "../common/errType.h"
 #include "options.h"
 
-ErrTypes parseOptions(int, char **, Opts *, char **);
+Result parseOptions(int, char **, Opts *, char **);
 
 #endif

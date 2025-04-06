@@ -4,6 +4,6 @@
 #include "../common/errType.h"
 #include "options.h"
 
-ErrTypes makeOutput(const int, char **, const Opts);
+Result makeOutput(const int, char **, const Opts);
 
 #endif

@@ -7,23 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-ErrTypes initReg(char **reg, char *arg) {
-  ErrTypes err = OK;
+Result initReg(char **reg, char *arg) {
+  Result res = OK;
   *reg = malloc(strlen(arg) + 1);
   if (*reg == NULL) {
-    err = MEM_ERR;
+    res = MEM_ERR;
   } else {
     strcpy(*reg, arg);
   }
-  return err;
+  return res;
 }
 
-ErrTypes buildReg(char **reg, char *arg) {
-  ErrTypes err = OK;
+Result buildReg(char **reg, char *arg) {
+  Result res = OK;
   char *resReg;
   resReg = malloc(strlen(*reg) + strlen(arg) + 2);
   if (resReg == NULL) {
-    err = MEM_ERR;
+    res = MEM_ERR;
   } else {
     strcpy(resReg, *reg);
     strcat(resReg, "|");
@@ -31,7 +31,7 @@ ErrTypes buildReg(char **reg, char *arg) {
     free(*reg);
     *reg = resReg;
   }
-  return err;
+  return res;
 }
 
 void replaceNewLine(char **text, size_t size) {
@@ -43,52 +43,88 @@ void replaceNewLine(char **text, size_t size) {
   }
 }
 
-ErrTypes fileRead(char **buffer, long size, FILE *file) {
-  ErrTypes err = OK;
+Result fileRead(char **buffer, long size, FILE *file) {
+  Result res = OK;
   *buffer = malloc(size + 1);
   if (buffer == NULL) {
-    err = MEM_ERR;
+    res = MEM_ERR;
   } else {
     fread(*buffer, sizeof(char), size + 1, file);
+    (*buffer)[size] = '\0';
     replaceNewLine(buffer, size);
   }
-  return err;
+  fclose(file);
+  return res;
 }
 
-ErrTypes fileOpen(char *fileName, long *size, FILE **file) {
-  ErrTypes err = OK;
+Result fileOpen(char *fileName, long *size, FILE **file) {
+  Result res = OK;
   *file = fopen(fileName, "rb");
   if (*file == NULL) {
-    err = INVALID_FILE;
+    printf("grep: %s: No such file or directory\n", fileName);
+    res = INVALID_FILE;
   } else {
     fseek(*file, 0, SEEK_END);
     *size = ftell(*file);
     fseek(*file, 0, SEEK_SET);
   }
-  return err;
+  return res;
 }
 
-ErrTypes initRegFile(char **reg, char *arg) {
-  ErrTypes err;
+typedef enum {
+  BUILD_REG_INIT,
+  BUILD_REG_FILE_OPENED,
+  BUILD_REG_FILE_READ,
+  BUILD_REG_BUILT
+} MakeRegState;
+
+Result initRegFile(char **reg, char *arg) {
+  Result res = OK;
   long size;
   FILE *file = NULL;
-
-  return ((err = fileOpen(arg, &size, &file)) ||
-          (err = fileRead(reg, size, file)))
-             ? err
-             : OK;
+  MakeRegState state = BUILD_REG_INIT;
+  while (res == OK && state != BUILD_REG_FILE_READ) {
+    switch (state) {
+    case BUILD_REG_INIT:
+      res = fileOpen(arg, &size, &file);
+      state = BUILD_REG_FILE_OPENED;
+      break;
+    case BUILD_REG_FILE_OPENED:
+      res = fileRead(reg, size, file);
+      state = BUILD_REG_FILE_READ;
+      break;
+    default:
+      break;
+    }
+  }
+  return res;
 }
 
-ErrTypes buildRegFile(char **reg, char *arg) {
-  ErrTypes err;
+Result buildRegFile(char **reg, char *arg) {
+  Result res = OK;
   long size;
   char *buffer;
   FILE *file = NULL;
-  return ((err = fileOpen(arg, &size, &file)) ||
-          (err = fileRead(&buffer, size, file)) ||
-          (err = buildReg(reg, buffer)))
-             ? err
-             : OK;
+  MakeRegState state = BUILD_REG_INIT;
+  while (res == OK && state != BUILD_REG_BUILT) {
+    switch (state) {
+    case BUILD_REG_INIT:
+      res = fileOpen(arg, &size, &file);
+      state = BUILD_REG_FILE_OPENED;
+      break;
+    case BUILD_REG_FILE_OPENED:
+      res = fileRead(&buffer, size, file);
+      state = BUILD_REG_FILE_READ;
+      break;
+    case BUILD_REG_FILE_READ:
+      res = buildReg(reg, buffer);
+      state = BUILD_REG_BUILT;
+      free(buffer);
+    case BUILD_REG_BUILT:
+      break;
+    }
+  }
+  return res;
 }
 
 const struct option longOpts[] = {
@@ -104,16 +140,16 @@ const struct option longOpts[] = {
     {"only-matching", no_argument, NULL, 'o'},
     {0, 0, 0, 0}};
 
-ErrTypes parseOptions(int argc, char **argv, Opts *op, char **reg) {
-  ErrTypes err = OK;
-  int res;
+Result parseOptions(int argc, char **argv, Opts *op, char **reg) {
+  Result res = OK;
+  int encodedArg;
+  while (res == OK && (encodedArg = getopt_long(argc, argv, "e:ivclnhsf:o",
+                                                longOpts, NULL)) != -1) {
 
-  while ((res = getopt_long(argc, argv, "e:ivclnhsf:o", longOpts, NULL)) !=
-         -1) {
-    switch (res) {
+    switch (encodedArg) {
     case 'e':
-      err = *reg != NULL ? buildReg(reg, optarg) : initReg(reg, optarg);
       op->pattern = true;
+      res = *reg != NULL ? buildReg(reg, optarg) : initReg(reg, optarg);
       break;
     case 'i':
       op->ignoreCase = true;
@@ -138,18 +174,21 @@ ErrTypes parseOptions(int argc, char **argv, Opts *op, char **reg) {
       break;
     case 'f':
       op->regFromFile = true;
-      err = *reg != NULL ? buildRegFile(reg, optarg) : initRegFile(reg, optarg);
+      res = *reg != NULL ? buildRegFile(reg, optarg) : initRegFile(reg, optarg);
       break;
     case 'o':
       op->onlyMatching = true;
+      break;
+    default:
+      res = INVALID_REG;
     }
   };
 
-  if (argc <= optind || argc == 1)
-    err = INVALID_FILE;
+  if (argc <= optind)
+    res = USAGE;
 
   op->endIndex = (op->pattern || op->regFromFile) ? optind : optind + 1;
   *reg = (op->pattern || op->regFromFile) ? *reg : argv[optind];
 
-  return err;
+  return res;
 }

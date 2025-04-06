@@ -5,8 +5,8 @@
 #include <getopt.h>
 #include <stdio.h>
 
-ErrTypes parseOptions(int argc, char **argv, Opts *op) {
-  ErrTypes err = OK;
+Result parseOptions(int argc, char **argv, Opts *op) {
+  Result err = OK;
 
   if (argc == 1)
     err = INVALID_FILE;
