@@ -1,6 +1,6 @@
 #include "cat.h"
 #define _GNU_SOURCE
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "options.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@ void showTab(char *buffer, bool status) {
   }
 }
 
-Result makeOutput(const int argc, char **argv, const Opts opts) {
+Result makeOutput(const int argc, char **argv, const Op opts) {
   Result err = OK;
   int strCnt = 1;
   int emptyStrCnt = 0;

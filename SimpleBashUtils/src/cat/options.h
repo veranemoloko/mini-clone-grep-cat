@@ -11,8 +11,8 @@ typedef struct {
   bool showEnds;
   bool showNonprinting;
   int endIndex;
-} Opts;
+} Op;
 
-Opts newConfigs();
+Op newConfigs();
 
 #endif

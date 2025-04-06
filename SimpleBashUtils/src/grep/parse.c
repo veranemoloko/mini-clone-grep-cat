@@ -1,5 +1,5 @@
 #include "parse.h"
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "options.h"
 
 #include <getopt.h>
@@ -140,7 +140,7 @@ const struct option longOpts[] = {
     {"only-matching", no_argument, NULL, 'o'},
     {0, 0, 0, 0}};
 
-Result parseOptions(int argc, char **argv, Opts *op, char **reg) {
+Result parseOptions(int argc, char **argv, Op *op, char **reg) {
   Result res = OK;
   int encodedArg;
   while (res == OK && (encodedArg = getopt_long(argc, argv, "e:ivclnhsf:o",
@@ -177,7 +177,7 @@ Result parseOptions(int argc, char **argv, Opts *op, char **reg) {
       res = *reg != NULL ? buildRegFile(reg, optarg) : initRegFile(reg, optarg);
       break;
     case 'o':
-      op->onlyMatching = true;
+      op->onlyMatch = true;
       break;
     default:
       res = INVALID_REG;

@@ -1,13 +1,13 @@
 #include <stdbool.h>
 
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "cat.h"
 #include "options.h"
 #include "parse.h"
 
 int main(int argc, char **argv) {
 
-  Opts configs = newConfigs();
+  Op configs = newConfigs();
 
   Result err = OK;
   bool isErr = (err = parseOptions(argc, argv, &configs)) ||

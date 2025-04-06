@@ -23,7 +23,7 @@ Result regComlile(char *reg, pcre **compiledReg, bool ignoreCase) {
   return res;
 }
 
-void printStr(int matches, char *buffer, Opts op, int *cntMatch, int cntStr) {
+void printStr(int matches, char *buffer, Op op, int *cntMatch, int cntStr) {
   if (((matches >= 0) && !op.invertMatch) ||
       ((matches < 0) && op.invertMatch)) {
     (*cntMatch)++;
@@ -37,14 +37,14 @@ void printStr(int matches, char *buffer, Opts op, int *cntMatch, int cntStr) {
   }
 }
 
-void printCntMatch(Opts op, int cntMatch, int cntFiles, char *fileName) {
+void printCntMatch(Op op, int cntMatch, int cntFiles, char *fileName) {
   if (cntFiles > 1 && op.countMatch && !op.noFileName)
     printf("%s:", fileName);
   if (op.countMatch)
     printf("%d\n", cntMatch);
 }
 
-bool printFileName(Opts op, int matches, int cntFiles, char *fileName) {
+bool printFileName(Op op, int matches, int cntFiles, char *fileName) {
   bool isBreak = false;
   if ((op.filesMatch && matches > 0 && !op.invertMatch) ||
       (op.filesMatch && matches < 1 && op.invertMatch)) {
@@ -73,27 +73,34 @@ char *makeStr(int matches, int *ovector, char *buffer) {
   return newStr;
 }
 
-Result makeOutput(int argc, char **argv, Opts op, pcre *compiledReg) {
-  Result err = OK;
+Result fileOpen(FILE **file, char *fileName, bool noMessages) {
+  Result res = OK;
+  *file = fopen(fileName, "r");
+  if (file == NULL) {
+    if (!noMessages) {
+      printf("grep: %s: No such file or directory\n", fileName);
+    }
+    res = INVALID_FILE;
+  }
+  return res;
+}
+
+Result makeOutput(int argc, char **argv, Op op, pcre *compiledReg) {
+  Result res = OK;
   int cntFiles = argc - op.endIndex;
 
   for (int i = 0; i < cntFiles; i++) {
-    int cntMatch = 0;
-    char *fileName = argv[op.endIndex + i];
-    FILE *file = fopen(fileName, "r");
-    if (file == NULL) {
-      if (!op.noMessages) {
-        printf("grep: %s: No such file or directory\n", fileName);
-      }
-      err = INVALID_FILE;
-      continue;
-    }
 
-    int cntStr = 0;
+    FILE *file;
+    char *fileName = argv[op.endIndex + i];
+    if (res = fileOpen(&file, fileName, op.noMessages))
+      continue;
+
     size_t len = 0;
     ssize_t nread;
     int ovector[30];
     char *buffer = NULL;
+    int cntStr = 0, cntMatch = 0;
     while ((nread = getline(&buffer, &len, file)) != -1) {
       cntStr++;
       int matches =
@@ -103,20 +110,18 @@ Result makeOutput(int argc, char **argv, Opts op, pcre *compiledReg) {
         break;
 
       char *lineToPrint = NULL;
-      lineToPrint =
-          op.onlyMatching ? makeStr(matches, ovector, buffer) : buffer;
+      lineToPrint = op.onlyMatch ? makeStr(matches, ovector, buffer) : buffer;
       printStr(matches, lineToPrint, op, &cntMatch, cntStr);
 
-      if (op.onlyMatching) {
+      if (op.onlyMatch)
         free(lineToPrint);
-      }
+
       memset(buffer, 0, len);
     }
-
-    free(buffer);
     printCntMatch(op, cntMatch, cntFiles, fileName);
+    free(buffer);
     fclose(file);
   }
   pcre_free(compiledReg);
-  return err;
+  return res;
 }

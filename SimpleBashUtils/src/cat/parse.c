@@ -1,11 +1,11 @@
 #include "parse.h"
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "options.h"
 
 #include <getopt.h>
 #include <stdio.h>
 
-Result parseOptions(int argc, char **argv, Opts *op) {
+Result parseOptions(int argc, char **argv, Op *op) {
   Result err = OK;
 
   if (argc == 1)

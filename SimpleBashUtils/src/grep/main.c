@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "grep.h"
 #include "options.h"
 #include "parse.h"
 
 int main(int argc, char **argv) {
   Result err = OK;
-  Opts configs = newConfigs();
+  Op configs = newConfigs();
   char *reg = NULL;
   pcre *compiledReg = NULL;
 

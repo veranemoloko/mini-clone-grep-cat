@@ -1,9 +1,9 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#include "../common/errType.h"
+#include "../common/resType.h"
 #include "options.h"
 
-Result parseOptions(int, char **, Opts *, char **);
+Result parseOptions(int, char **, Op *, char **);
 
 #endif
