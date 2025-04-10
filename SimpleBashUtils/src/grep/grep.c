@@ -1,12 +1,14 @@
 #define _GNU_SOURCE
 #include "grep.h"
-#include "../common/errType.h"
-#include "options.h"
+
 #include <pcre.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "../common/resType.h"
+#include "options.h"
 
 Result regComlile(char *reg, pcre **compiledReg, bool ignoreCase) {
   Result res = OK;
@@ -18,53 +20,56 @@ Result regComlile(char *reg, pcre **compiledReg, bool ignoreCase) {
     printf("Error: %s\nIndex error: %d\n", error, erroffset);
     res = INVALID_REG;
   }
-  free(reg);
-  reg = NULL;
+  // free(reg);
   return res;
 }
 
-void printStr(int matches, char *buffer, Op op, int *cntMatch, int cntStr) {
+void printStr(int matches, char *input, Op op, int *cntMatch, int cntStr) {
   if (((matches >= 0) && !op.invertMatch) ||
       ((matches < 0) && op.invertMatch)) {
     (*cntMatch)++;
     if (!op.countMatch && !op.filesMatch) {
       if (op.lineNumber) {
-        printf("%d:%s", cntStr, buffer);
+        printf("%d:%s", cntStr, input);
       } else {
-        printf("%s", buffer);
+        printf("%s", input);
       }
     }
   }
 }
 
 void printCntMatch(Op op, int cntMatch, int cntFiles, char *fileName) {
-  if (cntFiles > 1 && op.countMatch && !op.noFileName)
-    printf("%s:", fileName);
-  if (op.countMatch)
-    printf("%d\n", cntMatch);
+  if (cntFiles > 1 && op.countMatch && !op.noFileName) printf("%s:", fileName);
+  if (op.countMatch) printf("%d\n", cntMatch);
 }
 
 bool printFileName(Op op, int matches, int cntFiles, char *fileName) {
   bool isBreak = false;
-  if ((op.filesMatch && matches > 0 && !op.invertMatch) ||
-      (op.filesMatch && matches < 1 && op.invertMatch)) {
+  bool matched = (matches > 0);
+
+  if (op.invertMatch) {
+    matched = !matched;
+  }
+
+  if (op.filesMatch && matched) {
     printf("%s\n", fileName);
     isBreak = true;
-  } else if (matches > 0 && cntFiles > 1 && !op.filesMatch && !op.countMatch &&
+  } else if (matched && cntFiles > 1 && !op.filesMatch && !op.countMatch &&
              !op.noFileName) {
     printf("%s:", fileName);
   }
+
   return isBreak;
 }
 
-char *makeStr(int matches, int *ovector, char *buffer) {
-  size_t len = strlen(buffer);
+char *makeStr(int matches, int *ovector, char *input) {
+  size_t len = strlen(input);
   char *newStr = malloc(len + 2);
   if (newStr != NULL) {
     int newSize = 0;
     for (int i = 0; i < matches; i++) {
       for (int j = ovector[i * 2]; j < ovector[(i * 2) + 1]; j++) {
-        newStr[newSize++] = buffer[j];
+        newStr[newSize++] = input[j];
       }
     }
     newStr[newSize] = '\n';
@@ -73,10 +78,10 @@ char *makeStr(int matches, int *ovector, char *buffer) {
   return newStr;
 }
 
-Result fileOpen(FILE **file, char *fileName, bool noMessages) {
+Result fileOpenGrep(FILE **file, char *fileName, bool noMessages) {
   Result res = OK;
   *file = fopen(fileName, "r");
-  if (file == NULL) {
+  if (*file == NULL) {
     if (!noMessages) {
       printf("grep: %s: No such file or directory\n", fileName);
     }
@@ -90,36 +95,33 @@ Result makeOutput(int argc, char **argv, Op op, pcre *compiledReg) {
   int cntFiles = argc - op.endIndex;
 
   for (int i = 0; i < cntFiles; i++) {
-
     FILE *file;
     char *fileName = argv[op.endIndex + i];
-    if (res = fileOpen(&file, fileName, op.noMessages))
-      continue;
+    res = fileOpenGrep(&file, fileName, op.noMessages);
+    if (res) continue;
 
     size_t len = 0;
     ssize_t nread;
     int ovector[30];
-    char *buffer = NULL;
+    char *input = NULL;
     int cntStr = 0, cntMatch = 0;
-    while ((nread = getline(&buffer, &len, file)) != -1) {
+    while ((nread = getline(&input, &len, file)) != -1) {
       cntStr++;
       int matches =
-          pcre_exec(compiledReg, NULL, buffer, nread, 0, 0, ovector, 30);
+          pcre_exec(compiledReg, NULL, input, nread, 0, 0, ovector, 30);
 
-      if (printFileName(op, matches, cntFiles, fileName))
-        break;
+      if (printFileName(op, matches, cntFiles, fileName)) break;
 
       char *lineToPrint = NULL;
-      lineToPrint = op.onlyMatch ? makeStr(matches, ovector, buffer) : buffer;
+      lineToPrint = op.onlyMatch ? makeStr(matches, ovector, input) : input;
       printStr(matches, lineToPrint, op, &cntMatch, cntStr);
 
-      if (op.onlyMatch)
-        free(lineToPrint);
+      if (op.onlyMatch) free(lineToPrint);
 
-      memset(buffer, 0, len);
+      memset(input, 0, len);
     }
     printCntMatch(op, cntMatch, cntFiles, fileName);
-    free(buffer);
+    free(input);
     fclose(file);
   }
   pcre_free(compiledReg);

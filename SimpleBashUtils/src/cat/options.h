@@ -15,4 +15,13 @@ typedef struct {
 
 Op newConfigs();
 
+typedef struct {
+  int strCnt;
+  int emptyStrCnt;
+  bool newLine;
+  bool firstLine;
+} LineStats;
+
+LineStats newLineStats();
+
 #endif

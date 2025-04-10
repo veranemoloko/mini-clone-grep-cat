@@ -1,4 +1,5 @@
 #include "options.h"
+
 #include <stdbool.h>
 
 Op newConfigs() {
@@ -9,4 +10,9 @@ Op newConfigs() {
               .squeezeBlank = false,
               .showNonprinting = false,
               .endIndex = 0};
+}
+
+LineStats newLineStats() {
+  return (LineStats){
+      .emptyStrCnt = 0, .strCnt = 1, .firstLine = false, .newLine = false};
 }

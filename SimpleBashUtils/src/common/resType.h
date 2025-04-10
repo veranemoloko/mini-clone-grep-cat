@@ -1,5 +1,5 @@
-#ifndef ERRTYPE_H
-#define ERRTYPE_H
+#ifndef RESTYPE_H
+#define RESTYPE_H
 
 typedef enum {
   OK,

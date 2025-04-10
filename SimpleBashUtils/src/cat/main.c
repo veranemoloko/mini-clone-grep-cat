@@ -6,7 +6,6 @@
 #include "parse.h"
 
 int main(int argc, char **argv) {
-
   Op configs = newConfigs();
 
   Result err = OK;

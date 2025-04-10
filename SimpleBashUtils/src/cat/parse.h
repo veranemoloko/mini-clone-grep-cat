@@ -1,5 +1,5 @@
-#ifndef READ_ARGS_H
-#define READ_ARGS_H
+#ifndef PARSE_H
+#define PARSE_H
 
 #include "../common/resType.h"
 #include "options.h"

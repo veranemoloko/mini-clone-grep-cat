@@ -1,4 +1,4 @@
-#include "errType.h"
+#include "resType.h"
 
 #include <stdio.h>
 
