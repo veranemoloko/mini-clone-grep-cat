@@ -10,24 +10,24 @@ The `grep` command searches for lines in files that match a given pattern, using
 
 # Build and Run
  Clone the repository:
--git clone https://github.com/veranemoloko/mini-clone-grep-cat.git
--cd mini-clone-grep-cat
+- git clone https://github.com/veranemoloko/mini-clone-grep-cat.git
+- cd mini-clone-grep-cat
 
-To build the programs:
--make
--make s21_cat
--make s21_grep
+#To build the programs:
+- make
+- make s21_cat
+- make s21_grep
 
-To run the programs:
--./src/cat/s21_cat <file1> <file2> ...
--./src/grep/s21_grep "<pattern>" <file1> <file2> ...
+#To run the programs:
+- ./src/cat/s21_cat <file1> <file2> ...
+- ./src/grep/s21_grep "<pattern>" <file1> <file2> ...
 
-To run the tests:
--make test_cat
--make test_grep
+#To run the tests:
+- make test_cat
+- make test_grep
 
-To execute the test programs:
--./tests/test_cat
--./tests/test_grep
+#To execute the test programs:
+- ./tests/test_cat
+- ./tests/test_grep
 
 
