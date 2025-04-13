@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
   pcre *compiledReg = NULL;
 
   bool isErr = ((err = parseOptions(argc, argv, &configs, &reg)) ||
-                (err = regComlile(reg, &compiledReg, configs.ignoreCase)) ||
+                (err = regCompile(reg, &compiledReg, configs.ignoreCase)) ||
                 (err = makeOutput(argc, argv, configs, compiledReg)));
 
   return isErr ? (printErr(err), 1) : 0;

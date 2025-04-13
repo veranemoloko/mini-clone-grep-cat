@@ -1,4 +1,5 @@
 #include "options.h"
+
 #include <stdbool.h>
 
 Op newConfigs() {

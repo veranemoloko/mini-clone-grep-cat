@@ -41,10 +41,8 @@ int main() {
 
     if (result) cntSuccessRes++;
 
-    if (i < cntTests - 1) {
-      remove(out21Cat);
-      remove(outCat);
-    }
+    remove(out21Cat);
+    remove(outCat);
   }
 
   printf("\nTOTAL PASSED: %d/%d\n", cntSuccessRes, cntTests);

@@ -21,13 +21,17 @@ int main() {
                    "-l",
                    "-n",
                    "-h",
-                   "-s ",
                    "-f ./tests/input/reg",
                    "-e \"!\" -e \"0\"",
                    "-iv",
                    "-in",
                    "-vc",
-                   "-o"};
+                   "-on",
+                   "-oc",
+                   "-ov",
+                   "-vc",
+                   "-vn",
+                   "-s no.txt"};
 
   int cntTests = sizeof(flags) / sizeof(flags[0]);
 
@@ -40,12 +44,17 @@ int main() {
                inputFile, out21Grep);
       snprintf(cmdGrep, sizeof(cmdGrep), "grep \"wom\" %s > %s", inputFile,
                outGrep);
-    } else if (strcmp(flags[i], "-f ./tests/input/reg") &&
+    } else if (strcmp(flags[i], "-f ./tests/input/reg") ||
                strcmp(flags[i], "-e \"!\" -e \"0\"")) {
-      snprintf(cmdS21, sizeof(cmdS21), "./src/grep/s21_grep \"wom\" %s %s > %s",
+      snprintf(cmdS21, sizeof(cmdS21), "./src/grep/s21_grep %s %s > %s",
                flags[i], inputFile, out21Grep);
-      snprintf(cmdGrep, sizeof(cmdGrep), "grep \"wom\" %s %s > %s", flags[i],
-               inputFile, outGrep);
+      snprintf(cmdGrep, sizeof(cmdGrep), "grep %s %s > %s", flags[i], inputFile,
+               outGrep);
+    } else if (strcmp(flags[i], "-s no.txt")) {
+      snprintf(cmdS21, sizeof(cmdS21), "./src/grep/s21_grep \"wom\" %s > %s",
+               flags[i], out21Grep);
+      snprintf(cmdGrep, sizeof(cmdGrep), "grep \"wom\" %s > %s", flags[i],
+               outGrep);
     } else {
       snprintf(cmdS21, sizeof(cmdS21), "./src/grep/s21_grep %s %s > %s",
                flags[i], inputFile, out21Grep);
@@ -62,10 +71,8 @@ int main() {
 
     if (result) cntSuccessRes++;
 
-    if (i < cntTests - 1) {
-      remove(out21Grep);
-      remove(outGrep);
-    }
+    remove(out21Grep);
+    remove(outGrep);
   }
 
   printf("\nTOTAL PASSED: %d/%d\n", cntSuccessRes, cntTests);
