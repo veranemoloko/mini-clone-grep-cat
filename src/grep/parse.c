@@ -14,7 +14,8 @@ Result initReg(char **reg, char *arg) {
   if (*reg == NULL) {
     res = MEM_ERR;
   } else {
-    strcpy(*reg, arg);
+    memcpy(*reg, arg, strlen(arg) + 1);
+    (*reg)[strlen(arg)] = '\0';
   }
   return res;
 }
@@ -26,9 +27,9 @@ Result buildReg(char **reg, char *arg) {
   if (resReg == NULL) {
     res = MEM_ERR;
   } else {
-    strcpy(resReg, *reg);
-    strcat(resReg, "|");
-    strcat(resReg, arg);
+    memcpy(resReg, *reg, strlen(*reg) + 1);
+    resReg[(strlen(*reg) + strlen(arg) + 1)] = '\0';
+    sprintf(resReg, "%s|%s", *reg, arg);
     free(*reg);
     *reg = resReg;
   }

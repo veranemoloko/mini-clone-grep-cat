@@ -18,5 +18,7 @@ int main(int argc, char **argv) {
                 (err = regCompile(reg, &compiledReg, configs.ignoreCase)) ||
                 (err = makeOutput(argc, argv, configs, compiledReg)));
 
+  if (!err && (configs.pattern || configs.regFromFile)) free(reg);
+
   return isErr ? (printErr(err), 1) : 0;
 }
