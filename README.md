@@ -1,6 +1,5 @@
 # mini-clone-grep-cat
-This project implements two popular Unix/Linux commands, cat and grep, in C. These basic utilities allow for reading file contents and searching text within files using patterns, respectively. The project demonstrates how to recreate these commands with basic functionality.
-## Description
+This project implements two popular Unix/Linux commands, cat and grep, in C. 
 
 ### `cat` Command
 The `cat` command reads and outputs the contents of one or more files to the standard output (typically the terminal).
