@@ -2,7 +2,17 @@
 This project implements two popular Unix/Linux commands, cat and grep, in C. 
 
 ### `cat` Command
-The `cat` command reads and outputs the contents of one or more files to the standard output (typically the terminal).
+Cat - concatenate files and print on the standard output.
+
+## Options:
+ -b, --number-nonblank (overrides -n) \
+ -n, --number \
+ -e   (equivalent to -vE) \
+ -E, --show-ends \
+ -s, --squeeze-blank \
+ -t (equivalent to -vT) \
+ -T, --show-tabs \
+ -v, --show-nonprinting (use ^ and M- notation, except for LFD and TAB) \
 
 ### `grep` Command
 The `grep` command searches for lines in files that match a given pattern, using regular expressions.
