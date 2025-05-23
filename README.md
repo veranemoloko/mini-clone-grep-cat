@@ -15,7 +15,7 @@ Cat - concatenate files and print on the standard output.
  -v, --show-nonprinting (use ^ and M- notation, except for LFD and TAB) \
 
 ### `grep` Command
-The `grep` command searches for lines in files that match a given pattern, using regular expressions.
+Grep - print lines that match patterns.
 
 ## Options:
  -e PATTERNS, --regexp=PATTERNS \
