@@ -22,11 +22,11 @@ To run the programs:
 - ./src/cat/s21_cat <file1> <file2> ...
 - ./src/grep/s21_grep "<pattern>" <file1> <file2> ...
 
-#To run the tests:
+To run the tests:
 - make test_cat
 - make test_grep
 
-#To execute the test programs:
+To execute the test programs:
 - ./tests/test_cat
 - ./tests/test_grep
 
