@@ -8,6 +8,18 @@ The `cat` command reads and outputs the contents of one or more files to the sta
 ### `grep` Command
 The `grep` command searches for lines in files that match a given pattern, using regular expressions.
 
+## Options:
+ -e PATTERNS, --regexp=PATTERNS
+ -f FILE, --file=FILE
+ -i, --ignore-case
+ -v, --invert-match
+ -c, --count
+ -l, --files-with-matches
+ -o, --only-matching
+ -s, --no-messages
+ -h, --no-filename
+ -n, --line-number
+
 Build and Run
  Clone the repository:
 - git clone https://github.com/veranemoloko/mini-clone-grep-cat.git
