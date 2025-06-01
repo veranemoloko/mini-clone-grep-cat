@@ -63,7 +63,6 @@ clean:
 .PHONY: clangcheck
 clangcheck:
 	find . -type f \( -name "*.c" -o -name "*.h" \) -exec clang-format -style=file -i {} +
-	find . -type f \( -name "*.c" -o -name "*.h" \) -exec clang-format -style=file -n {} +
 
 .PHONY: cppcheck
 cppcheck:

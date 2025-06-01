@@ -10,6 +10,7 @@
 #include "../common/resType.h"
 #include "options.h"
 
+// Compiles a regular expression pattern using PCRE library
 Result regCompile(char *reg, pcre **compReg, bool ignoreCase) {
   Result res = OK;
   int erroffset;
@@ -20,10 +21,11 @@ Result regCompile(char *reg, pcre **compReg, bool ignoreCase) {
     printf("Error: %s\nIndex error: %d\n", error, erroffset);
     res = INVALID_REG;
   }
-  // free(reg);
   return res;
 }
 
+// Prints the string if it matches the pattern according to options
+// Updates match count if there's a match
 void printStr(int matches, char *input, Op op, int *matchCnt, int strCnt) {
   if (((matches >= 0) && !op.invertMatch) ||
       ((matches < 0) && op.invertMatch)) {
@@ -38,11 +40,16 @@ void printStr(int matches, char *input, Op op, int *matchCnt, int strCnt) {
   }
 }
 
+// Prints the count of matches if countMatch option is enabled
 void printCntMatch(Op op, int matchCnt, int cntFiles, char *fileName) {
-  if (cntFiles > 1 && op.countMatch && !op.noFileName) printf("%s:", fileName);
-  if (op.countMatch) printf("%d\n", matchCnt);
+  if (cntFiles > 1 && op.countMatch && !op.noFileName)
+    printf("%s:", fileName);
+  if (op.countMatch)
+    printf("%d\n", matchCnt);
 }
 
+// Prints filename if filesMatch option is enabled or if multiple files are
+// processed Returns true if processing should break after printing filename
 bool printFileName(Op op, int matches, int cntFiles, char *fileName) {
   bool isBreak = false;
   bool matched = (matches > 0);
@@ -59,6 +66,7 @@ bool printFileName(Op op, int matches, int cntFiles, char *fileName) {
   return isBreak;
 }
 
+// Creates a new string containing only the matched portion of input
 char *makeOnlyMatchStr(int *ovector, char *input) {
   size_t len = strlen(input);
   char *newStr = malloc(len + 1);
@@ -70,7 +78,6 @@ char *makeOnlyMatchStr(int *ovector, char *input) {
     newStr[newSize++] = '\n';
     newStr[newSize] = '\0';
   }
-
   return newStr;
 }
 
@@ -78,7 +85,8 @@ Result fileOpenGrep(FILE **file, char *fileName, bool noMessages) {
   Result res = OK;
   *file = fopen(fileName, "r");
   if (*file == NULL) {
-    if (!noMessages) printf("grep: %s: No such file or directory\n", fileName);
+    if (!noMessages)
+      printf("grep: %s: No such file or directory\n", fileName);
     res = INVALID_FILE;
   }
   return res;
@@ -99,10 +107,12 @@ void printOutput(FILE *file, int cntFiles, char *fileName, Op op,
     if (op.onlyMatch && !op.countMatch && !op.filesMatch) {
       int startOffset = 0;
       int matches = 1;
+      // For onlyMatch option, print each matching portion separately
       while ((matches = pcre_exec(compReg, NULL, input, nread, startOffset, 0,
                                   ovector, 30)) > 0 &&
              !op.invertMatch) {
-        if (cntFiles > 1) printf("%s:", fileName);
+        if (cntFiles > 1)
+          printf("%s:", fileName);
         char *lineToPrint = NULL;
         lineToPrint = makeOnlyMatchStr(ovector, input);
         printStr(matches, lineToPrint, op, &matchCnt, strCnt);
@@ -110,8 +120,10 @@ void printOutput(FILE *file, int cntFiles, char *fileName, Op op,
         startOffset = ovector[1];
       }
     } else {
+      // Normal matching behavior
       int matches = pcre_exec(compReg, NULL, input, nread, 0, 0, ovector, 30);
-      if (printFileName(op, matches, cntFiles, fileName)) break;
+      if (printFileName(op, matches, cntFiles, fileName))
+        break;
       printStr(matches, input, op, &matchCnt, strCnt);
     }
     memset(input, 0, len);
@@ -120,13 +132,15 @@ void printOutput(FILE *file, int cntFiles, char *fileName, Op op,
   free(input);
 }
 
+// Main function that processes all input files and generates output
 Result makeOutput(int argc, char **argv, Op op, pcre *compReg) {
   Result res = OK;
 
   for (int i = 0; i < argc - op.endIndex; i++) {
     FILE *file;
     res = fileOpenGrep(&file, argv[op.endIndex + i], op.noMessages);
-    if (res) continue;
+    if (res)
+      continue;
 
     printOutput(file, argc - op.endIndex, argv[op.endIndex + i], op, compReg);
 

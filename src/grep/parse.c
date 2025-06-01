@@ -8,6 +8,7 @@
 #include "../common/resType.h"
 #include "options.h"
 
+// Initializes a regular expression pattern from a string argument
 Result initReg(char **reg, char *arg) {
   Result res = OK;
   *reg = malloc(strlen(arg) + 1);
@@ -20,6 +21,8 @@ Result initReg(char **reg, char *arg) {
   return res;
 }
 
+// Builds a compound regular expression by combining with existing pattern
+// Uses '|' as OR operator between patterns
 Result buildReg(char **reg, char *arg) {
   Result res = OK;
   char *resReg;
@@ -36,10 +39,13 @@ Result buildReg(char **reg, char *arg) {
   return res;
 }
 
+// Replaces all newline characters with '|' in the given text
+// Used to convert multi-line patterns into single-line OR patterns
 void replaceNewLine(char **text, size_t size) {
   size_t i = 0;
   while (i <= size) {
-    if ((*text)[i] == '\n') (*text)[i] = '|';
+    if ((*text)[i] == '\n')
+      (*text)[i] = '|';
     i++;
   }
 }
@@ -72,6 +78,7 @@ Result fileOpen(char *fileName, long *size, FILE **file) {
   return res;
 }
 
+// State machine states for building regex from file
 typedef enum {
   BUILD_REG_INIT,
   BUILD_REG_FILE_OPENED,
@@ -79,6 +86,7 @@ typedef enum {
   BUILD_REG_BUILT
 } MakeRegState;
 
+// Initializes regular expression pattern from file content
 Result initRegFile(char **reg, char *arg) {
   Result res = OK;
   long size;
@@ -86,21 +94,22 @@ Result initRegFile(char **reg, char *arg) {
   MakeRegState state = BUILD_REG_INIT;
   while (res == OK && state != BUILD_REG_FILE_READ) {
     switch (state) {
-      case BUILD_REG_INIT:
-        res = fileOpen(arg, &size, &file);
-        state = BUILD_REG_FILE_OPENED;
-        break;
-      case BUILD_REG_FILE_OPENED:
-        res = fileRead(reg, size, file);
-        state = BUILD_REG_FILE_READ;
-        break;
-      default:
-        break;
+    case BUILD_REG_INIT:
+      res = fileOpen(arg, &size, &file);
+      state = BUILD_REG_FILE_OPENED;
+      break;
+    case BUILD_REG_FILE_OPENED:
+      res = fileRead(reg, size, file);
+      state = BUILD_REG_FILE_READ;
+      break;
+    default:
+      break;
     }
   }
   return res;
 }
 
+// Builds compound regular expression from file content
 Result buildRegFile(char **reg, char *arg) {
   Result res = OK;
   long size;
@@ -109,20 +118,20 @@ Result buildRegFile(char **reg, char *arg) {
   MakeRegState state = BUILD_REG_INIT;
   while (res == OK && state != BUILD_REG_BUILT) {
     switch (state) {
-      case BUILD_REG_INIT:
-        res = fileOpen(arg, &size, &file);
-        state = BUILD_REG_FILE_OPENED;
-        break;
-      case BUILD_REG_FILE_OPENED:
-        res = fileRead(&buffer, size, file);
-        state = BUILD_REG_FILE_READ;
-        break;
-      case BUILD_REG_FILE_READ:
-        res = buildReg(reg, buffer);
-        state = BUILD_REG_BUILT;
-        free(buffer);
-      case BUILD_REG_BUILT:
-        break;
+    case BUILD_REG_INIT:
+      res = fileOpen(arg, &size, &file);
+      state = BUILD_REG_FILE_OPENED;
+      break;
+    case BUILD_REG_FILE_OPENED:
+      res = fileRead(&buffer, size, file);
+      state = BUILD_REG_FILE_READ;
+      break;
+    case BUILD_REG_FILE_READ:
+      res = buildReg(reg, buffer);
+      state = BUILD_REG_BUILT;
+      free(buffer);
+    case BUILD_REG_BUILT:
+      break;
     }
   }
   return res;
@@ -147,45 +156,45 @@ Result parseOptions(int argc, char **argv, Op *op, char **reg) {
   while (res == OK && (encodedArg = getopt_long(argc, argv, "e:ivclnhsf:o",
                                                 longOpts, NULL)) != -1) {
     switch (encodedArg) {
-      case 'e':
-        op->pattern = true;
-        res = *reg != NULL ? buildReg(reg, optarg) : initReg(reg, optarg);
-        break;
-      case 'i':
-        op->ignoreCase = true;
-        break;
-      case 'v':
-        op->invertMatch = true;
-        break;
-      case 'c':
-        op->countMatch = true;
-        break;
-      case 'l':
-        op->filesMatch = true;
-        break;
-      case 'n':
-        op->lineNumber = true;
-        break;
-      case 'h':
-        op->noFileName = true;
-        break;
-      case 's':
-        op->noMessages = true;
-        break;
-      case 'f':
-        op->regFromFile = true;
-        res =
-            *reg != NULL ? buildRegFile(reg, optarg) : initRegFile(reg, optarg);
-        break;
-      case 'o':
-        op->onlyMatch = true;
-        break;
-      default:
-        res = INVALID_REG;
+    case 'e':
+      op->pattern = true;
+      res = *reg != NULL ? buildReg(reg, optarg) : initReg(reg, optarg);
+      break;
+    case 'i':
+      op->ignoreCase = true;
+      break;
+    case 'v':
+      op->invertMatch = true;
+      break;
+    case 'c':
+      op->countMatch = true;
+      break;
+    case 'l':
+      op->filesMatch = true;
+      break;
+    case 'n':
+      op->lineNumber = true;
+      break;
+    case 'h':
+      op->noFileName = true;
+      break;
+    case 's':
+      op->noMessages = true;
+      break;
+    case 'f':
+      op->regFromFile = true;
+      res = *reg != NULL ? buildRegFile(reg, optarg) : initRegFile(reg, optarg);
+      break;
+    case 'o':
+      op->onlyMatch = true;
+      break;
+    default:
+      res = INVALID_REG;
     }
   };
 
-  if (argc <= optind) res = USAGE;
+  if (argc <= optind)
+    res = USAGE;
 
   op->endIndex = (op->pattern || op->regFromFile) ? optind : optind + 1;
   *reg = (op->pattern || op->regFromFile) ? *reg : argv[optind];

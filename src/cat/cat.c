@@ -19,6 +19,7 @@ void printDel() { printf("^?"); }
 void printNewLine() { putchar('\n'); }
 void printEscapedMeta() { printf("M-"); }
 void printControlChar(unsigned char c) { printf("^%c", c + '@'); }
+
 void printMetaChar(unsigned char c) {
   printEscapedMeta();
   c -= 128;
@@ -31,9 +32,11 @@ void printMetaChar(unsigned char c) {
   }
 }
 
+// Prints a single character with special handling based on options
 void printChar(unsigned char c, bool showEnd, bool showTab) {
   if (c == '\n') {
-    if (showEnd) printEnd();
+    if (showEnd)
+      printEnd();
     printNewLine();
   } else if (showTab && c == '\t') {
     printTab();
@@ -84,31 +87,40 @@ Result fileOpen(FILE **file, char *fileName) {
   return (*file != NULL) ? OK : INVALID_FILE;
 }
 
+// Processes and prints file contents with all formatting options
 void printOutput(FILE *file, char **input, Op op, LineStats *lineSt) {
   ssize_t nread;
   size_t len = 0;
   while ((nread = getline(input, &len, file)) != -1) {
+    // Track consecutive empty lines for squeeze-blank option
     lineSt->emptyStrCnt =
         (isEmptyStr((*input)[0])) ? lineSt->emptyStrCnt + 1 : 0;
 
-    if (op.squeezeBlank && lineSt->emptyStrCnt >= 2) continue;
+    // Skip line if squeeze-blank enabled and multiple empty lines
+    if (op.squeezeBlank && lineSt->emptyStrCnt >= 2)
+      continue;
 
+    // Check if line ends with newline
     lineSt->newLine = (*input)[(strlen(*input)) - 1] == '\n' ? true : false;
 
     printStrCnt(op, lineSt);
 
+    // Handle printing based on show-nonprinting flag
     if (!op.showNonprinting) {
       printTabs(*input, op.showTab);
-      if (op.showEnds && lineSt->newLine) printEnd();
-      if (lineSt->newLine) printNewLine();
+      if (op.showEnds && lineSt->newLine)
+        printEnd();
+      if (lineSt->newLine)
+        printNewLine();
     } else
       printNoPrinting(*input, op.showEnds, op.showTab);
 
+    // Reset line buffer and update first-line flag
     memset(*input, 0, len);
     lineSt->firstLine = false;
   }
 }
-
+// Processes all input files with given options
 Result makeOutput(const int argc, char **argv, const Op op) {
   Result res = OK;
   LineStats lineSt = newLineStats();
@@ -121,7 +133,9 @@ Result makeOutput(const int argc, char **argv, const Op op) {
       continue;
     }
 
-    if (i > 0 && lineSt.newLine == false) lineSt.firstLine = true;
+    // Reset first-line flag if previous file didn't end with newline
+    if (i > 0 && lineSt.newLine == false)
+      lineSt.firstLine = true;
 
     char *input = NULL;
     printOutput(file, &input, op, &lineSt);
