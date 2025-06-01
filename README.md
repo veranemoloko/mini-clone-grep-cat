@@ -1,54 +1,53 @@
 # mini-clone-grep-cat
 This project implements two popular Unix/Linux commands, cat and grep, in C. 
 
-### `cat` Command
+### `cat` Command 🐱
 Cat - concatenate files and print on the standard output.
 
 ## Options:
- -b, --number-nonblank (overrides -n) \
- -n, --number \
- -e   (equivalent to -vE) \
- -E, --show-ends \
- -s, --squeeze-blank \
- -t (equivalent to -vT) \
- -T, --show-tabs \
- -v, --show-nonprinting (use ^ and M- notation, except for LFD and TAB) \
+- -b, --number-nonblank    Number non-empty lines (overrides -n)  
+- -n, --number             Number all output lines  
+- -e                       Equivalent to -vE  
+- -E, --show-ends          Display $ at end of each line  
+- -s, --squeeze-blank      Suppress repeated empty lines  
+- -t                       Equivalent to -vT  
+- -T, --show-tabs          Display TAB characters as ^I  
+- -v, --show-nonprinting   Use ^ and M- notation for non-printing chars
 
-### `grep` Command
+### `grep` Command 🔍
 Grep - print lines that match patterns.
 
 ## Options:
- -e PATTERNS, --regexp=PATTERNS \
- -f FILE, --file=FILE \
- -i, --ignore-case \
- -v, --invert-match \
- -c, --count \
- -l, --files-with-matches \
- -o, --only-matching \
- -s, --no-messages \
- -h, --no-filename \
- -n, --line-number \
+- -e PATTERNS, --regexp=PATTERNS  Use PATTERNS for matching  
+- -f FILE, --file=FILE            Take PATTERNS from FILE  
+- -i, --ignore-case               Case insensitive matching  
+- -v, --invert-match              Select non-matching lines  
+- -c, --count                     Print only match counts  
+- -l, --files-with-matches        Print only matching filenames  
+- -o, --only-matching             Show only matching parts  
+- -s, --no-messages               Suppress error messages  
+- -h, --no-filename               Suppress filename prefix  
+- -n, --line-number               Print line numbers
 
-Build and Run
- Clone the repository:
-- git clone https://github.com/veranemoloko/mini-clone-grep-cat.git
-- cd mini-clone-grep-cat
+## Build and Run
+```bash
+git clone https://github.com/veranemoloko/mini-clone-grep-cat.git
+cd mini-clone-grep-cat
 
-To build the programs:
-- make
-- make s21_cat
-- make s21_grep
+# Build all
+make
 
-To run the programs:
-- ./src/cat/s21_cat <file1> <file2> ...
-- ./src/grep/s21_grep "<pattern>" <file1> <file2> ...
+# Individual builds
+make s21_cat
+make s21_grep
 
-To run the tests:
-- make test_cat
-- make test_grep
+# Run
+./src/cat/s21_cat [options] [file...]
+./src/grep/s21_grep [options] PATTERN [file...]
 
-To execute the test programs:
-- ./tests/test_cat
-- ./tests/test_grep
+# Tests
+make test_cat && ./tests/test_cat
+make test_grep && ./tests/test_grep
+```
 
 
