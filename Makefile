@@ -1,32 +1,32 @@
-CC := gcc
-CFLAGS := -Wall -Wextra -Werror -std=c11 -g
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -std=c11 -02
 
-SRC_DIR := src
-SRC_DIR_TEST := tests
+SRC_DIR = src
+SRC_DIR_TEST = tests
 
-SRC_CAT := main.c options.c cat.c parse.c
-SRC_GREP := main.c options.c parse.c grep.c
-SRC_COMMON := resType.c 
+SRC_CAT = main.c options.c cat.c parse.c
+SRC_GREP = main.c options.c parse.c grep.c
+SRC_COMMON = resType.c 
 
-SRC_TEST_CAT := test_cat.c testFoo.c
-SRC_TEST_GREP := test_grep.c testFoo.c
+SRC_TEST_CAT = test_cat.c testFoo.c
+SRC_TEST_GREP = test_grep.c testFoo.c
 
-CSRC_CAT := $(addprefix $(SRC_DIR)/cat/,$(SRC_CAT))
-CSRC_GREP := $(addprefix $(SRC_DIR)/grep/,$(SRC_GREP))
-CSRC_COMMON := $(addprefix $(SRC_DIR)/common/,$(SRC_COMMON))
-CSRC_TEST_CAT := $(addprefix $(SRC_DIR_TEST)/,$(SRC_TEST_CAT))
-CSRC_TEST_GREP := $(addprefix $(SRC_DIR_TEST)/,$(SRC_TEST_GREP))
+CSRC_CAT = $(addprefix $(SRC_DIR)/cat/,$(SRC_CAT))
+CSRC_GREP = $(addprefix $(SRC_DIR)/grep/,$(SRC_GREP))
+CSRC_COMMON = $(addprefix $(SRC_DIR)/common/,$(SRC_COMMON))
+CSRC_TEST_CAT = $(addprefix $(SRC_DIR_TEST)/,$(SRC_TEST_CAT))
+CSRC_TEST_GREP = $(addprefix $(SRC_DIR_TEST)/,$(SRC_TEST_GREP))
 
-COBJ_CAT := $(CSRC_CAT:.c=.o)
-COBJ_GREP := $(CSRC_GREP:.c=.o)
-COBJ_COMMON := $(CSRC_COMMON:.c=.o)
-COBJ_TEST_CAT := $(CSRC_TEST_CAT:.c=.o)
-COBJ_TEST_GREP := $(CSRC_TEST_GREP:.c=.o)
+COBJ_CAT = $(CSRC_CAT:.c=.o)
+COBJ_GREP = $(CSRC_GREP:.c=.o)
+COBJ_COMMON = $(CSRC_COMMON:.c=.o)
+COBJ_TEST_CAT = $(CSRC_TEST_CAT:.c=.o)
+COBJ_TEST_GREP = $(CSRC_TEST_GREP:.c=.o)
 
-TARGET_CAT := src/cat/s21_cat
-TARGET_GREP := src/grep/s21_grep
-TARGET_TEST_CAT := tests/test_cat
-TARGET_TEST_GREP := tests/test_grep
+TARGET_CAT = src/cat/s21_cat
+TARGET_GREP = src/grep/s21_grep
+TARGET_TEST_CAT = tests/test_cat
+TARGET_TEST_GREP = tests/test_grep
 
 all: $(TARGET_CAT) $(TARGET_GREP)
 
